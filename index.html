@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#070916">
+<meta name="description" content="NEXUS — a futuristic, customizable web dashboard.">
+<title>NEXUS Browser</title>
+<style>
+:root{--bg:#050713;--panel:rgba(7,12,31,.88);--panel2:rgba(10,17,39,.88);--line:rgba(92,142,255,.22);--text:#eef4ff;--muted:#91a1c3;--cyan:#00d9ff;--purple:#a855ff;--pink:#ff38d1;--glow:0 0 24px rgba(0,217,255,.22),0 0 38px rgba(168,85,255,.12);--radius:20px}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;min-height:100vh;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow-x:hidden}
+button,input,select{font:inherit}button{cursor:pointer;color:inherit}.backdrop{position:fixed;inset:0;z-index:-3;background:radial-gradient(ellipse at 50% 32%,rgba(19,52,132,.35),transparent 35%),radial-gradient(ellipse at 80% 80%,rgba(119,20,180,.19),transparent 38%),linear-gradient(180deg,#050713 0%,#070b1d 60%,#03050e 100%)}
+.city{position:fixed;inset:0;z-index:-2;overflow:hidden;pointer-events:none;opacity:.7;background:linear-gradient(180deg,transparent 40%,rgba(4,7,20,.15) 65%,#050713 100%)}
+.city:before{content:"";position:absolute;inset:0;background:repeating-linear-gradient(90deg,transparent 0 5.5%,rgba(0,217,255,.09) 5.6%,transparent 5.8% 10%),repeating-linear-gradient(0deg,transparent 0 70px,rgba(70,105,255,.05) 71px 72px);mask-image:linear-gradient(transparent,#000 18%,#000 75%,transparent)}
+.skyline{position:absolute;bottom:12%;left:-2%;right:-2%;height:55%;display:flex;align-items:end;gap:8px;opacity:.7}
+.building{flex:1;min-width:15px;position:relative;border:1px solid rgba(52,129,255,.25);background:linear-gradient(90deg,rgba(4,12,36,.92),rgba(15,25,64,.8),rgba(4,9,28,.96));box-shadow:inset 0 0 20px rgba(0,180,255,.08);clip-path:polygon(7% 0,92% 0,100% 100%,0 100%)}
+.building:after{content:"";position:absolute;inset:8px;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(0,217,255,.45) 13px 15px,transparent 16px 24px),repeating-linear-gradient(90deg,transparent 0 12px,rgba(168,85,255,.28) 13px 15px,transparent 16px 24px);opacity:.6}
+.halo{position:absolute;width:min(54vw,660px);aspect-ratio:1;left:50%;top:14%;transform:translateX(-50%);border-radius:50%;border:2px solid rgba(0,217,255,.8);box-shadow:0 0 24px var(--cyan),inset 0 0 25px rgba(168,85,255,.4);background:radial-gradient(circle,rgba(0,217,255,.06),transparent 65%);opacity:.6;animation:halo 7s ease-in-out infinite}
+.halo:before{content:"";position:absolute;inset:12%;border-radius:50%;border:2px solid rgba(168,85,255,.8);box-shadow:0 0 25px var(--purple);border-left-color:transparent;border-bottom-color:rgba(0,217,255,.8);transform:rotate(-30deg)}
+.floor{position:absolute;bottom:0;left:-10%;right:-10%;height:24%;background:repeating-linear-gradient(90deg,transparent 0 7%,rgba(0,217,255,.12) 7.1%,transparent 7.3% 14%),repeating-linear-gradient(0deg,transparent 0 17px,rgba(168,85,255,.13) 18px 19px);transform:perspective(180px) rotateX(30deg);transform-origin:bottom;mask-image:linear-gradient(transparent,#000)}
+@keyframes halo{50%{opacity:.9;filter:hue-rotate(22deg);transform:translateX(-50%) scale(1.035)}}
+.particles{position:fixed;inset:0;pointer-events:none;z-index:-1}.particle{position:absolute;width:2px;height:2px;background:#8eefff;border-radius:50%;box-shadow:0 0 10px #00d9ff;animation:float 8s linear infinite}@keyframes float{from{transform:translateY(20px);opacity:0}15%{opacity:.8}to{transform:translateY(-100vh);opacity:0}}
+.app{width:min(1440px,96vw);margin:3vh auto 5vh;border:1px solid rgba(87,150,255,.55);border-radius:24px;background:rgba(4,8,23,.82);box-shadow:0 0 0 1px rgba(168,85,255,.2),0 0 32px rgba(0,217,255,.25),0 0 80px rgba(168,85,255,.16);overflow:hidden;backdrop-filter:blur(24px);transition:box-shadow .3s,border-color .3s}
+.windowbar{height:43px;display:flex;align-items:center;padding:0 14px;gap:8px;border-bottom:1px solid var(--line);background:rgba(5,9,25,.94)}
+.lights{display:flex;gap:6px;margin-right:8px}.light{width:9px;height:9px;border-radius:50%;background:#ff5f72}.light:nth-child(2){background:#ffc857}.light:nth-child(3){background:#2ee6a6}
+.tabs{display:flex;gap:6px;align-self:stretch;align-items:end;min-width:0;flex:1;overflow:auto}.tab{border:1px solid transparent;border-bottom:0;background:transparent;color:var(--muted);padding:9px 15px;border-radius:10px 10px 0 0;min-width:95px;max-width:200px;display:flex;align-items:center;gap:8px;white-space:nowrap;font-size:12px}.tab.active{background:rgba(17,27,57,.95);color:var(--text);border-color:var(--line)}.tab span{overflow:hidden;text-overflow:ellipsis}.tab .x{margin-left:auto;opacity:.6;border:0;background:none;padding:0 2px}.addtab,.iconbtn{border:0;background:transparent;color:var(--muted);padding:8px;border-radius:9px}.addtab:hover,.iconbtn:hover{background:rgba(0,217,255,.1);color:var(--cyan)}
+.toolbar{display:flex;align-items:center;gap:5px;padding:8px 13px;border-bottom:1px solid var(--line);background:rgba(6,11,29,.92)}.navbtn{font-size:17px;min-width:29px}.address{flex:1;min-width:0;display:flex;align-items:center;gap:9px;border:1px solid rgba(96,130,200,.28);background:rgba(1,5,18,.76);border-radius:14px;padding:0 12px;height:38px}.address:focus-within{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(0,217,255,.08)}.address input{background:transparent;border:0;outline:0;color:var(--text);width:100%;min-width:0;font-size:13px}.address input::placeholder{color:#7181a5}.toolbar .iconbtn{font-size:17px}
+.layout{display:grid;grid-template-columns:64px minmax(0,1fr);min-height:680px}.sidebar{border-right:1px solid var(--line);background:rgba(4,8,22,.78);display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px 8px}.sidebtn{width:40px;height:40px;border:1px solid transparent;background:transparent;border-radius:13px;color:#8798be;font-size:19px;display:grid;place-items:center;transition:.2s}.sidebtn:hover,.sidebtn.active{color:var(--cyan);background:linear-gradient(135deg,rgba(0,217,255,.16),rgba(168,85,255,.14));border-color:rgba(0,217,255,.25);box-shadow:var(--glow)}.side-spacer{flex:1}
+.content{padding:22px;min-width:0}.page{display:none}.page.active{display:block;animation:appear .35s ease}@keyframes appear{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.hero{position:relative;min-height:270px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px 12px 20px;overflow:hidden;border-radius:18px;background:radial-gradient(ellipse at 50% 30%,rgba(0,90,210,.22),transparent 48%),linear-gradient(180deg,rgba(6,13,38,.1),rgba(5,9,25,.7))}
+.brand{font-size:clamp(34px,5vw,58px);letter-spacing:.22em;font-weight:800;margin:0;text-shadow:0 0 24px rgba(0,217,255,.5)}.brand span{color:var(--cyan)}.tagline{margin:7px 0 25px;color:#9aabd0;letter-spacing:.17em;font-size:10px;text-transform:uppercase}
+.searchbox{width:min(690px,96%);display:flex;align-items:center;gap:12px;border:1px solid rgba(0,217,255,.8);border-radius:99px;padding:7px 9px 7px 17px;background:rgba(3,8,25,.85);box-shadow:0 0 0 1px rgba(168,85,255,.28),0 0 22px rgba(0,217,255,.18),inset 0 0 20px rgba(0,217,255,.04);transition:.25s}.searchbox:focus-within{box-shadow:0 0 0 3px rgba(0,217,255,.12),0 0 35px rgba(0,217,255,.3)}.searchbox .magnify{font-size:21px;color:var(--cyan)}.searchbox input{flex:1;min-width:0;background:transparent;border:0;outline:0;color:var(--text);font-size:14px;padding:8px 0}.searchbox input::placeholder{color:#92a1c4}.searchbox button{border:0;border-radius:50%;width:37px;height:37px;background:linear-gradient(135deg,var(--cyan),var(--purple));color:white;font-size:20px;box-shadow:0 0 15px rgba(0,217,255,.25)}
+.search-options{display:flex;align-items:center;gap:8px;margin-top:13px;color:var(--muted);font-size:11px}.search-options select,.setting-select{background:#0b1430;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:6px 9px;outline:0}
+.sectionhead{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:20px 0 12px}.sectionhead h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;margin:0}.subtle{font-size:11px;color:var(--muted)}
+.shortcuts{display:grid;grid-template-columns:repeat(7,minmax(75px,1fr));gap:10px}.shortcut{min-width:0;position:relative;display:flex;flex-direction:column;align-items:center;gap:10px;padding:15px 7px 12px;border:1px solid rgba(85,130,218,.22);border-radius:15px;background:linear-gradient(145deg,rgba(12,22,49,.88),rgba(5,10,27,.88));transition:transform .2s,border-color .2s,box-shadow .2s}.shortcut:hover{transform:translateY(-4px);border-color:var(--cyan);box-shadow:var(--glow)}.shortcut-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;font-size:20px;background:rgba(0,217,255,.12);color:var(--cyan)}.shortcut:nth-child(2n) .shortcut-icon{background:rgba(168,85,255,.13);color:var(--purple)}.shortcut:nth-child(3n) .shortcut-icon{background:rgba(255,56,209,.12);color:var(--pink)}.shortcut-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.remove-shortcut{position:absolute;right:5px;top:4px;border:0;background:none;color:#8290b0;opacity:0;font-size:13px}.shortcut:hover .remove-shortcut{opacity:1}
+.dashboard{display:grid;grid-template-columns:minmax(0,1fr) 240px;gap:16px;margin-top:20px}.maincol,.rightcol{min-width:0}.rightcol{display:flex;flex-direction:column;gap:12px}.card{border:1px solid rgba(86,130,217,.23);border-radius:16px;background:linear-gradient(145deg,rgba(9,16,39,.94),rgba(5,9,25,.92));padding:15px;min-width:0}.cardhead{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px}.cardhead h3{margin:0;font-size:12px;font-weight:650;letter-spacing:.04em}.cardhead button{border:0;background:none;color:var(--muted);font-size:18px}.tasks{display:flex;flex-direction:column;gap:9px}.task{display:flex;align-items:center;gap:9px;font-size:11px;color:#bdc8e2}.task input{accent-color:var(--purple);width:15px;height:15px}.task.done span{text-decoration:line-through;color:#687795}.task span{flex:1;overflow-wrap:anywhere}.task .delete-task{border:0;background:none;color:#667594;opacity:.4}.task:hover .delete-task{opacity:1}.addtask{display:flex;gap:6px;margin-top:12px}.addtask input{min-width:0;flex:1;background:#050a1b;border:1px solid var(--line);border-radius:8px;padding:8px;color:var(--text);font-size:11px;outline:0}.mini-btn{border:1px solid rgba(0,217,255,.25);background:rgba(0,217,255,.1);color:var(--cyan);border-radius:8px;padding:6px 10px;font-size:12px}
+.weather-main{display:flex;align-items:center;gap:12px}.weather-icon{font-size:38px}.temp{font-size:29px;font-weight:600}.weather-desc{font-size:10px;color:var(--muted);margin-top:2px}.weather-foot{display:flex;justify-content:space-between;margin-top:13px;padding-top:10px;border-top:1px solid var(--line);font-size:10px;color:var(--muted)}.weather-location{font-size:10px;color:var(--muted);margin-top:9px}.weather-actions{display:flex;gap:8px;align-items:center}.weather-actions button{font-size:10px}
+.metrics{display:flex;flex-direction:column;gap:12px}.metric-top{display:flex;justify-content:space-between;font-size:10px;color:#c4d0ea}.metric-top span:last-child{color:var(--muted)}.spark{width:100%;height:27px;display:block;margin-top:4px}.spark path{fill:none;stroke:var(--cyan);stroke-width:2;filter:drop-shadow(0 0 4px rgba(0,217,255,.5))}.metric:nth-child(2) .spark path{stroke:var(--purple)}.metric:nth-child(3) .spark path{stroke:var(--pink)}
+.news-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}.news-item{overflow:hidden;border:1px solid rgba(88,129,218,.2);border-radius:12px;background:rgba(3,8,24,.65);cursor:pointer;transition:.2s}.news-item:hover{transform:translateY(-3px);border-color:var(--purple)}.news-art{height:74px;background:radial-gradient(circle at 70% 20%,rgba(0,217,255,.8),transparent 14%),linear-gradient(135deg,#0a2d67,#11133b 50%,#50135f);position:relative;overflow:hidden}.news-art:after{content:"";position:absolute;left:15%;right:15%;bottom:-65%;height:130%;border:1px solid rgba(0,217,255,.5);border-radius:50%;box-shadow:0 0 15px rgba(0,217,255,.35)}.news-item:nth-child(2) .news-art{background:linear-gradient(130deg,#25104d,#0d3571,#6d1e8d)}.news-item:nth-child(3) .news-art{background:linear-gradient(130deg,#06182c,#123a56,#16152d)}.news-item:nth-child(4) .news-art{background:linear-gradient(130deg,#28104c,#7a185e,#0b1d4a)}.news-copy{padding:9px}.news-copy strong{display:block;font-size:10px;line-height:1.4;font-weight:600}.news-copy small{display:block;color:var(--muted);font-size:9px;margin-top:7px}
+.page-title{font-size:24px;margin:4px 0 6px}.page-description{color:var(--muted);font-size:12px;margin:0 0 20px}.list{display:flex;flex-direction:column;gap:9px}.list-row{display:flex;align-items:center;gap:12px;padding:13px;border:1px solid var(--line);border-radius:12px;background:rgba(8,15,36,.7)}.list-row .row-icon{font-size:20px}.list-row .row-text{flex:1;min-width:0}.list-row strong{display:block;font-size:12px;overflow:hidden;text-overflow:ellipsis}.list-row small{display:block;color:var(--muted);font-size:10px;overflow:hidden;text-overflow:ellipsis;margin-top:4px}.list-row button{border:1px solid var(--line);border-radius:8px;padding:7px 10px;background:rgba(0,217,255,.08);font-size:11px}
+.settings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.setting{padding:15px;border:1px solid var(--line);border-radius:13px;background:rgba(8,15,36,.7)}.setting label{display:block;font-size:12px;margin-bottom:9px}.setting p{font-size:10px;color:var(--muted);margin:0 0 10px}.setting input[type=range]{width:100%;accent-color:var(--cyan)}.setting input[type=color]{width:45px;height:30px;border:0;background:transparent}.setting .setting-select{width:100%}.setting-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:18px}
+.notice{border:1px solid rgba(0,217,255,.25);border-radius:12px;background:rgba(0,217,255,.06);padding:12px;color:#b9d9ee;font-size:11px;line-height:1.5;margin-top:14px}.empty{text-align:center;color:var(--muted);padding:35px 12px;font-size:12px}
+.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 20px;border-top:1px solid var(--line);color:#65779d;font-size:10px;background:rgba(3,6,18,.65)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#111d3d;border:1px solid rgba(0,217,255,.4);box-shadow:var(--glow);padding:11px 16px;border-radius:12px;font-size:12px;transition:.25s;z-index:20}.toast.show{opacity:1;transform:translate(-50%,0)}
+body.reduce-motion *,body.reduce-motion *:before,body.reduce-motion *:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+@media(max-width:1050px){.dashboard{grid-template-columns:minmax(0,1fr) 220px}.shortcuts{grid-template-columns:repeat(4,minmax(70px,1fr))}.layout{min-height:0}.content{padding:16px}.halo{top:15%}}
+@media(max-width:720px){.app{width:100%;margin:0;border-radius:0;min-height:100vh}.windowbar{padding:0 8px}.tab{min-width:85px;padding:8px}.toolbar{padding:7px;gap:1px}.toolbar .navbtn{min-width:25px;padding:5px}.address{height:35px;padding:0 8px}.layout{grid-template-columns:48px minmax(0,1fr)}.sidebar{padding:12px 4px;gap:8px}.sidebtn{width:35px;height:35px}.content{padding:11px}.hero{min-height:245px;padding:20px 5px}.brand{letter-spacing:.14em}.tagline{font-size:8px}.searchbox{gap:7px;padding-left:12px}.searchbox input{font-size:12px}.search-options{font-size:10px}.shortcuts{grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}.shortcut{padding:11px 5px}.shortcut-icon{width:34px;height:34px}.dashboard{grid-template-columns:1fr;gap:12px}.rightcol{display:grid;grid-template-columns:1fr}.news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.news-art{height:65px}.settings-grid{grid-template-columns:1fr}.halo{width:80vw;top:18%}.footer{padding:12px}.sectionhead{margin-top:16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="backdrop"></div><div class="city" aria-hidden="true"><div class="skyline" id="skyline"></div><div class="halo"></div><div class="floor"></div></div><div class="particles" id="particles"></div>
+<div class="app" id="app">
+  <header class="windowbar">
+    <div class="lights" aria-hidden="true"><i class="light"></i><i class="light"></i><i class="light"></i></div>
+    <div class="tabs" id="tabs" role="tablist"></div><button class="addtab" id="newTab" title="New tab" aria-label="New tab">＋</button>
+    <button class="iconbtn" id="topSettings" title="Settings" aria-label="Settings">⋮</button>
+  </header>
+  <div class="toolbar">
+    <button class="iconbtn navbtn" id="backBtn" title="Back">‹</button><button class="iconbtn navbtn" id="forwardBtn" title="Forward">›</button><button class="iconbtn navbtn" id="reloadBtn" title="Reload dashboard">↻</button>
+    <form class="address" id="addressForm"><span style="color:var(--cyan)">⌕</span><input id="addressInput" aria-label="Address or search" placeholder="Search or enter a URL..." autocomplete="off"><button class="iconbtn" type="submit" title="Go">↵</button></form>
+    <button class="iconbtn" id="bookmarkCurrent" title="Bookmark current page">☆</button><button class="iconbtn" id="openCurrent" title="Open address in a new tab">↗</button>
+  </div>
+  <div class="layout">
+    <nav class="sidebar" aria-label="Main navigation">
+      <button class="sidebtn active" data-page="home" title="Home">⌂</button>
+      <button class="sidebtn" data-page="shortcutsPage" title="Shortcuts">▦</button>
+      <button class="sidebtn" data-page="bookmarksPage" title="Bookmarks">♡</button>
+      <button class="sidebtn" data-page="historyPage" title="History">◷</button>
+      <button class="sidebtn" data-page="downloadsPage" title="Downloads info">⇩</button>
+      <div class="side-spacer"></div><button class="sidebtn" data-page="settingsPage" title="Settings">⚙</button>
+    </nav>
+    <main class="content">
+      <section class="page active" id="home">
+        <div class="hero"><h1 class="brand">NE<span>X</span>US</h1><p class="tagline">Your gateway to the digital universe</p>
+          <form class="searchbox" id="searchForm"><span class="magnify">⌕</span><input id="searchInput" placeholder="Search the web..." aria-label="Search the web" autocomplete="off"><button type="submit" aria-label="Search">➜</button></form>
+          <div class="search-options"><span>Search with</span><select id="searchEngine" aria-label="Search engine"><option value="google">Google</option><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option></select><span id="dateText"></span></div>
+        </div>
+        <div class="sectionhead"><h2>Quick launch</h2><button class="mini-btn" id="addShortcutTop">＋ Add shortcut</button></div>
+        <div class="shortcuts" id="shortcutGrid"></div>
+        <div class="dashboard">
+          <div class="maincol">
+            <section class="card"><div class="cardhead"><h3>✦ Latest from your universe</h3><button id="newsRefresh" title="Refresh cards">↻</button></div><div class="news-grid" id="newsGrid"></div><p class="subtle" style="margin:12px 0 0">Demo cards only — open a search to discover real results.</p></section>
+          </div>
+          <aside class="rightcol">
+            <section class="card"><div class="cardhead"><h3>Today's missions</h3><button id="focusTask" title="Add task">＋</button></div><div class="tasks" id="taskList"></div><form class="addtask" id="taskForm"><input id="taskInput" maxlength="100" placeholder="Add a task..." aria-label="New task"><button class="mini-btn" type="submit">Add</button></form></section>
+            <section class="card"><div class="cardhead"><h3>Weather</h3><button id="refreshWeather" title="Refresh weather">↻</button></div><div class="weather-main"><div class="weather-icon" id="weatherIcon">☁</div><div><div class="temp" id="temperature">--°</div><div class="weather-desc" id="weatherDesc">Live weather on request</div></div></div><div class="weather-foot"><span id="weatherHigh">H: --°</span><span id="weatherLow">L: --°</span></div><div class="weather-location" id="weatherLocation">Choose a location to load weather.</div><form class="addtask" id="weatherForm"><input id="weatherCity" placeholder="City e.g. Jaunpur" aria-label="Weather city"><button class="mini-btn" type="submit">Get</button></form></section>
+            <section class="card"><div class="cardhead"><h3>System-style visuals</h3><span class="subtle">DEMO</span></div><div class="metrics">
+              <div class="metric"><div class="metric-top"><span>CPU</span><span id="cpuValue">28%</span></div><svg class="spark" viewBox="0 0 180 30" preserveAspectRatio="none"><path id="cpuLine" d="M0 24 L20 20 L38 22 L55 12 L75 17 L96 8 L118 14 L140 4 L160 12 L180 3"/></svg></div>
+              <div class="metric"><div class="metric-top"><span>Memory</span><span id="ramValue">62%</span></div><svg class="spark" viewBox="0 0 180 30" preserveAspectRatio="none"><path id="ramLine" d="M0 25 L20 20 L38 23 L55 12 L75 16 L96 7 L118 12 L140 3 L160 10 L180 4"/></svg></div>
+              <div class="metric"><div class="metric-top"><span>Network</span><span id="netValue">12 Mbps</span></div><svg class="spark" viewBox="0 0 180 30" preserveAspectRatio="none"><path id="netLine" d="M0 23 L20 15 L38 20 L55 9 L75 13 L96 6 L118 17 L140 8 L160 12 L180 3"/></svg></div>
+            </div></section>
+          </aside>
+        </div>
+      </section>
+      <section class="page" id="shortcutsPage"><h1 class="page-title">Quick launch</h1><p class="page-description">Your favourite destinations, all in one place.</p><div class="shortcuts" id="shortcutGridFull"></div><div class="setting-actions"><button class="mini-btn" id="addShortcutFull">＋ Add shortcut</button></div></section>
+      <section class="page" id="bookmarksPage"><h1 class="page-title">Bookmarks</h1><p class="page-description">Saved locally in this browser on this device.</p><div class="list" id="bookmarkList"></div><div class="setting-actions"><button class="mini-btn" id="addBookmark">＋ Add bookmark</button><button class="mini-btn" id="exportBookmarks">Export bookmarks</button></div></section>
+      <section class="page" id="historyPage"><h1 class="page-title">Recent history</h1><p class="page-description">Searches and websites you opened from NEXUS.</p><div class="list" id="historyList"></div><div class="setting-actions"><button class="mini-btn" id="clearHistory">Clear history</button></div></section>
+      <section class="page" id="downloadsPage"><h1 class="page-title">Downloads</h1><p class="page-description">NEXUS is a web dashboard, so downloads are handled by your actual browser.</p><div class="card"><h3 style="margin-top:0">Your downloads live in your browser</h3><p class="subtle" style="line-height:1.8">When you download a file from a website opened by NEXUS, use Safari, Chrome, or your device's download manager to find it. A GitHub Pages website cannot read or manage your device's private download folder.</p><button class="mini-btn" id="downloadHelp">Show help</button></div></section>
+      <section class="page" id="settingsPage"><h1 class="page-title">NEXUS settings</h1><p class="page-description">Make the dashboard feel like yours.</p>
+        <div class="settings-grid">
+          <div class="setting"><label for="themeSelect">Accent theme</label><p>Change the glow colours across the interface.</p><select class="setting-select" id="themeSelect"><option value="cyan">Cyber Cyan + Purple</option><option value="purple">Purple Nebula</option><option value="green">Matrix Green</option><option value="red">Crimson Neon</option></select></div>
+          <div class="setting"><label for="wallSelect">Atmosphere</label><p>Choose the background mood.</p><select class="setting-select" id="wallSelect"><option value="city">Neon City</option><option value="space">Deep Space</option><option value="minimal">Minimal Dark</option></select></div>
+          <div class="setting"><label for="glowRange">Glow intensity <span id="glowLabel">70%</span></label><p>Adjust the glow around the interface.</p><input id="glowRange" type="range" min="0" max="100" value="70"></div>
+          <div class="setting"><label for="motionToggle">Motion effects</label><p>Turn off animations if you prefer a calmer interface.</p><label style="display:flex;align-items:center;gap:8px"><input id="motionToggle" type="checkbox" checked> Enable animations</label></div>
+          <div class="setting"><label for="defaultEngine">Default search engine</label><p>Used by the main search box.</p><select class="setting-select" id="defaultEngine"><option value="google">Google</option><option value="duckduckgo">DuckDuckGo</option><option value="bing">Bing</option></select></div>
+          <div class="setting"><label>Local data</label><p>Export your dashboard data or reset it.</p><div class="setting-actions"><button class="mini-btn" id="exportData">Export data</button><button class="mini-btn" id="resetData">Reset all</button></div></div>
+        </div>
+        <div class="notice">Privacy note: tasks, bookmarks, shortcuts, theme and history are stored in this browser's local storage. They do not automatically sync between devices. Avoid storing passwords or sensitive information here.</div>
+      </section>
+    </main>
+  </div>
+  <footer class="footer"><span>◈ NEXUS BROWSER · WEB PROTOTYPE</span><span>Made for the next digital frontier</span><span id="clock">--:--:--</span></footer>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script>
+(() => {
+  "use strict";
+  const $ = (s, root=document) => root.querySelector(s);
+  const $$ = (s, root=document) => [...root.querySelectorAll(s)];
+  const STORAGE_KEY = "nexus-browser-v1";
+  const defaults = {
+    engine:"google", theme:"cyan", wall:"city", glow:70, motion:true,
+    shortcuts:[
+      {name:"YouTube",url:"https://www.youtube.com",icon:"▶"},
+      {name:"Gmail",url:"https://mail.google.com",icon:"✉"},
+      {name:"Calendar",url:"https://calendar.google.com",icon:"▦"},
+      {name:"Drive",url:"https://drive.google.com",icon:"△"},
+      {name:"GitHub",url:"https://github.com",icon:"⌘"},
+      {name:"ChatGPT",url:"https://chatgpt.com",icon:"✧"},
+      {name:"Wikipedia",url:"https://www.wikipedia.org",icon:"W"}
+    ],
+    bookmarks:[], history:[],
+    tasks:[
+      {id:1,text:"Finish assignment",done:false},
+      {id:2,text:"Work on a project",done:false},
+      {id:3,text:"Take a short break",done:true}
+    ],
+    weatherCity:"Jaunpur"
+  };
+  let state = loadState();
+  let tabs = [{id:1,title:"New Tab",url:"",page:"home",trail:[]}];
+  let activeTab = 1;
+  let toastTimer;
+  function loadState(){
+    try {
+      const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
+      return saved && typeof saved === "object" ? {...structuredClone(defaults),...saved} : structuredClone(defaults);
+    } catch { return structuredClone(defaults); }
+  }
+  function saveState(){ try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){ showToast("Could not save local data. Storage may be full."); } }
+  function showToast(message){
+    const el=$("#toast"); el.textContent=message; el.classList.add("show");
+    clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2600);
+  }
+  function safeUrl(raw){
+    let value=(raw||"").trim(); if(!value) return null;
+    if(/^https?:\/\//i.test(value)) return value;
+    if(/^(localhost|[\w-]+\.)+[\w-]{2,}(:\d+)?(\/.*)?$/i.test(value) && !/\s/.test(value)) return "https://"+value;
+    return null;
+  }
+  function searchUrl(query){
+    const q=encodeURIComponent(query.trim());
+    return ({google:"https://www.google.com/search?q="+q,duckduckgo:"https://duckduckgo.com/?q="+q,bing:"https://www.bing.com/search?q="+q})[state.engine] || "https://www.google.com/search?q="+q;
+  }
+  function resolveInput(raw){
+    const value=raw.trim(); if(!value) return null;
+    const direct=safeUrl(value); return direct || searchUrl(value);
+  }
+  function openExternal(raw, newTab=true){
+    const url=resolveInput(raw); if(!url) return;
+    addHistory(raw,url);
+    if(newTab){ window.open(url,"_blank","noopener,noreferrer"); }
+    else { window.location.href=url; }
+    showToast("Opened in your browser");
+  }
+  function addHistory(label,url){
+    state.history.unshift({label:label||url,url,time:Date.now()});
+    state.history=state.history.slice(0,100); saveState(); renderHistory();
+  }
+  function faviconIcon(url){
+    try { const host=new URL(url).hostname.replace(/^www\./,""); return host.slice(0,1).toUpperCase(); } catch { return "↗"; }
+  }
+  function addBookmark(url,label){
+    const resolved=resolveInput(url||""); if(!resolved) return showToast("Enter a valid website or search first.");
+    if(state.bookmarks.some(b=>b.url===resolved)) return showToast("Already bookmarked.");
+    state.bookmarks.unshift({url:resolved,label:label||url||resolved});
+    saveState(); renderBookmarks(); showToast("Bookmark saved");
+  }
+  function navigateToPage(page){
+    $$(".page").forEach(p=>p.classList.toggle("active",p.id===page));
+    $$(".sidebtn").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+    const tab=tabs.find(t=>t.id===activeTab); if(tab) tab.page=page;
+    renderTabs();
+  }
+  function renderTabs(){
+    const container=$("#tabs"); container.innerHTML="";
+    tabs.forEach(t=>{
+      const b=document.createElement("button"); b.className="tab"+(t.id===activeTab?" active":""); b.setAttribute("role","tab"); b.setAttribute("aria-selected",String(t.id===activeTab));
+      const title=document.createElement("span"); title.textContent=t.title;
+      b.append(title);
+      const x=document.createElement("button"); x.className="x"; x.textContent="×"; x.title="Close tab"; x.setAttribute("aria-label","Close "+t.title);
+      x.addEventListener("click",e=>{e.stopPropagation();closeTab(t.id);}); b.append(x);
+      b.addEventListener("click",()=>switchTab(t.id)); container.append(b);
+    });
+  }
+  function newTab(){
+    const id=Math.max(0,...tabs.map(t=>t.id))+1; tabs.push({id,title:"New Tab",url:"",page:"home",trail:[]}); activeTab=id; navigateToPage("home"); $("#addressInput").value=""; $("#searchInput").focus(); renderTabs();
+  }
+  function closeTab(id){
+    if(tabs.length===1){const t=tabs[0];t.title="New Tab";t.url="";t.page="home";navigateToPage("home");renderTabs();return;}
+    tabs=tabs.filter(t=>t.id!==id); if(activeTab===id){activeTab=tabs[tabs.length-1].id;navigateToPage(tabs[tabs.length-1].page||"home");} renderTabs();
+  }
+  function switchTab(id){activeTab=id;const tab=tabs.find(t=>t.id===id);if(tab){navigateToPage(tab.page||"home");$("#addressInput").value=tab.url||"";}renderTabs();}
+  function renderShortcuts(){
+    ["#shortcutGrid","#shortcutGridFull"].forEach(selector=>{
+      const grid=$(selector); if(!grid)return; grid.innerHTML="";
+      state.shortcuts.forEach((item,index)=>{
+        const b=document.createElement("button");b.className="shortcut";b.type="button";b.title=item.url;
+        const icon=document.createElement("span");icon.className="shortcut-icon";icon.textContent=item.icon||faviconIcon(item.url);
+        const name=document.createElement("span");name.className="shortcut-name";name.textContent=item.name;
+        const remove=document.createElement("button");remove.className="remove-shortcut";remove.textContent="×";remove.title="Remove shortcut";remove.setAttribute("aria-label","Remove "+item.name);
+        remove.addEventListener("click",e=>{e.stopPropagation();state.shortcuts.splice(index,1);saveState();renderShortcuts();showToast("Shortcut removed");});
+        b.append(icon,name,remove);b.addEventListener("click",()=>openExternal(item.url,true));grid.append(b);
+      });
+      const add=document.createElement("button");add.className="shortcut";add.type="button";add.innerHTML='<span class="shortcut-icon">＋</span><span class="shortcut-name">Add</span>';add.addEventListener("click",addShortcut);grid.append(add);
+    });
+  }
+  function addShortcut(){
+    const name=prompt("Shortcut name (e.g. Portfolio):");if(!name)return;
+    const url=prompt("Website URL (e.g. https://example.com):");if(!url)return;
+    const resolved=safeUrl(url);if(!resolved)return showToast("Please enter a full website address, such as https://example.com");
+    state.shortcuts.push({name:name.trim().slice(0,30),url:resolved,icon:prompt("One icon/emoji (optional):")||faviconIcon(resolved)});
+    saveState();renderShortcuts();showToast("Shortcut added");
+  }
+  function renderTasks(){
+    const list=$("#taskList");list.innerHTML="";
+    if(!state.tasks.length){list.innerHTML='<div class="subtle">No tasks yet. Add one below.</div>';return;}
+    state.tasks.forEach(task=>{
+      const row=document.createElement("label");row.className="task"+(task.done?" done":"");
+      const check=document.createElement("input");check.type="checkbox";check.checked=!!task.done;check.addEventListener("change",()=>{task.done=check.checked;saveState();renderTasks();});
+      const text=document.createElement("span");text.textContent=task.text;
+      const del=document.createElement("button");del.className="delete-task";del.type="button";del.textContent="×";del.title="Delete task";del.addEventListener("click",e=>{e.preventDefault();state.tasks=state.tasks.filter(t=>t.id!==task.id);saveState();renderTasks();});
+      row.append(check,text,del);list.append(row);
+    });
+  }
+  function renderBookmarks(){
+    const list=$("#bookmarkList");if(!list)return;list.innerHTML="";
+    if(!state.bookmarks.length){list.innerHTML='<div class="empty">No bookmarks yet.<br>Use the ☆ button in the toolbar to save a website.</div>';return;}
+    state.bookmarks.forEach((b,i)=>{
+      const row=document.createElement("div");row.className="list-row";
+      const icon=document.createElement("span");icon.className="row-icon";icon.textContent="☆";
+      const text=document.createElement("div");text.className="row-text";const strong=document.createElement("strong");strong.textContent=b.label||b.url;const small=document.createElement("small");small.textContent=b.url;text.append(strong,small);
+      const open=document.createElement("button");open.textContent="Open";open.addEventListener("click",()=>openExternal(b.url,true));
+      const del=document.createElement("button");del.textContent="Remove";del.addEventListener("click",()=>{state.bookmarks.splice(i,1);saveState();renderBookmarks();});
+      row.append(icon,text,open,del);list.append(row);
+    });
+  }
+  function renderHistory(){
+    const list=$("#historyList");if(!list)return;list.innerHTML="";
+    if(!state.history.length){list.innerHTML='<div class="empty">Your recent searches and websites will appear here.</div>';return;}
+    state.history.slice(0,50).forEach(item=>{
+      const row=document.createElement("div");row.className="list-row";const icon=document.createElement("span");icon.className="row-icon";icon.textContent="◷";
+      const text=document.createElement("div");text.className="row-text";const strong=document.createElement("strong");strong.textContent=item.label;const small=document.createElement("small");small.textContent=new Date(item.time).toLocaleString()+" · "+item.url;text.append(strong,small);
+      const open=document.createElement("button");open.textContent="Open";open.addEventListener("click",()=>openExternal(item.url,true));row.append(icon,text,open);list.append(row);
+    });
+  }
+  const news=[
+    ["Future cities are closer than we think","A concept for tomorrow's connected world"],
+    ["Exploring new worlds beyond","Discover science, space and technology"],
+    ["The next era of AI is here","Ideas shaping the tools of tomorrow"],
+    ["Building a better tomorrow","Small projects, big possibilities"]
+  ];
+  function renderNews(){
+    const grid=$("#newsGrid");grid.innerHTML="";
+    news.forEach((item,i)=>{const card=document.createElement("article");card.className="news-item";card.tabIndex=0;const art=document.createElement("div");art.className="news-art";const copy=document.createElement("div");copy.className="news-copy";const title=document.createElement("strong");title.textContent=item[0];const desc=document.createElement("small");desc.textContent=["Explore the future","Space & science","AI & technology","Ideas & projects"][i];copy.append(title,desc);card.append(art,copy);const act=()=>openExternal(item[0],true);card.addEventListener("click",act);card.addEventListener("keydown",e=>{if(e.key==="Enter")act()});grid.append(card);});
+  }
+  function addTask(text){
+    text=(text||"").trim();if(!text)return;state.tasks.push({id:Date.now(),text:text.slice(0,100),done:false});saveState();renderTasks();
+  }
+  function updateClock(){
+    const now=new Date();$("#clock").textContent=now.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    $("#dateText").textContent=now.toLocaleDateString([], {weekday:"short",month:"short",day:"numeric"});
+  }
+  function initCity(){
+    const skyline=$("#skyline");for(let i=0;i<38;i++){const b=document.createElement("div");b.className="building";b.style.height=(20+Math.random()*78)+"%";b.style.flexGrow=String(.5+Math.random()*1.8);skyline.append(b);}
+    const particles=$("#particles");for(let i=0;i<35;i++){const p=document.createElement("i");p.className="particle";p.style.left=(Math.random()*100)+"%";p.style.top=(20+Math.random()*100)+"%";p.style.animationDelay=(-Math.random()*10)+"s";p.style.animationDuration=(6+Math.random()*9)+"s";particles.append(p);}
+  }
+  function applySettings(){
+    const themes={
+      cyan:{cyan:"#00d9ff",purple:"#a855ff",pink:"#ff38d1"},
+      purple:{cyan:"#b18cff",purple:"#7c4dff",pink:"#f05dff"},
+      green:{cyan:"#46ff9b",purple:"#00b985",pink:"#c7ff57"},
+      red:{cyan:"#ff5368",purple:"#a855ff",pink:"#ff9a42"}
+    };
+    const c=themes[state.theme]||themes.cyan;Object.entries(c).forEach(([k,v])=>document.documentElement.style.setProperty("--"+k,v));
+    document.documentElement.style.setProperty("--glow","0 0 "+(Math.round(state.glow*.34))+"px "+c.cyan+"38, 0 0 "+(Math.round(state.glow*.5))+"px "+c.purple+"24");
+    document.body.classList.toggle("reduce-motion",!state.motion);
+    $(".city").style.display=state.wall==="minimal"?"none":"block";
+    $(".halo").style.display=state.wall==="space"?"block":(state.wall==="minimal"?"none":"block");
+    if(state.wall==="space")$(".city").style.opacity=".28";else $(".city").style.opacity=".7";
+    $("#themeSelect").value=state.theme;$("#wallSelect").value=state.wall;$("#glowRange").value=state.glow;$("#glowLabel").textContent=state.glow+"%";$("#motionToggle").checked=state.motion;$("#defaultEngine").value=state.engine;$("#searchEngine").value=state.engine;
+  }
+  async function getWeather(city){
+    city=(city||"").trim();if(!city)return showToast("Enter a city name first.");
+    $("#weatherLocation").textContent="Loading weather for "+city+"…";
+    try{
+      const geoRes=await fetch("https://geocoding-api.open-meteo.com/v1/search?name="+encodeURIComponent(city)+"&count=1&language=en&format=json");
+      if(!geoRes.ok)throw new Error("Geocoding request failed");
+      const geo=await geoRes.json();const place=geo.results&&geo.results[0];if(!place)throw new Error("City not found");
+      const res=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${place.latitude}&longitude=${place.longitude}&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=1`);
+      if(!res.ok)throw new Error("Weather request failed");const data=await res.json();const cur=data.current,daily=data.daily;
+      const code=cur.weather_code;let desc="Cloudy",icon="☁";
+      if(code===0){desc="Clear sky";icon=cur.is_day?"☀️":"🌙"}else if([1,2,3].includes(code)){desc="Partly cloudy";icon="🌤️"}else if([45,48].includes(code)){desc="Fog";icon="🌫️"}else if([51,53,55,56,57].includes(code)){desc="Drizzle";icon="🌦️"}else if([61,63,65,66,67,80,81,82].includes(code)){desc="Rain";icon="🌧️"}else if([71,73,75,77,85,86].includes(code)){desc="Snow";icon="❄️"}else if([95,96,99].includes(code)){desc="Thunderstorm";icon="⛈️"}
+      $("#weatherIcon").textContent=icon;$("#temperature").textContent=Math.round(cur.temperature_2m)+"°";$("#weatherDesc").textContent=desc;$("#weatherHigh").textContent="H: "+Math.round(daily.temperature_2m_max[0])+"°";$("#weatherLow").textContent="L: "+Math.round(daily.temperature_2m_min[0])+"°";$("#weatherLocation").textContent=place.name+(place.admin1?", "+place.admin1:"")+(place.country?", "+place.country:"")+" · updated now";
+      state.weatherCity=city;saveState();
+    }catch(e){$("#weatherLocation").textContent="Couldn't load weather. Check the city name and internet connection.";showToast("Weather unavailable right now.");}
+  }
+  function exportFile(filename, data){
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=filename;document.body.append(a);a.click();a.remove();URL.revokeObjectURL(url);
+  }
+  $("#searchForm").addEventListener("submit",e=>{e.preventDefault();const q=$("#searchInput").value.trim();if(q)openExternal(searchUrl(q),true);});
+  $("#addressForm").addEventListener("submit",e=>{e.preventDefault();const raw=$("#addressInput").value.trim();if(raw)openExternal(raw,true);});
+  $("#searchEngine").addEventListener("change",e=>{state.engine=e.target.value;saveState();$("#defaultEngine").value=state.engine;});
+  $("#newTab").addEventListener("click",newTab);
+  $("#topSettings").addEventListener("click",()=>navigateToPage("settingsPage"));
+  $$(".sidebtn").forEach(b=>b.addEventListener("click",()=>navigateToPage(b.dataset.page)));
+  $("#reloadBtn").addEventListener("click",()=>{navigateToPage("home");$("#addressInput").value="";showToast("Dashboard refreshed");});
+  $("#backBtn").addEventListener("click",()=>showToast("Use your browser's Back button to navigate websites."));
+  $("#forwardBtn").addEventListener("click",()=>showToast("Use your browser's Forward button to navigate websites."));
+  $("#openCurrent").addEventListener("click",()=>{const v=$("#addressInput").value.trim();if(v)openExternal(v,true);else showToast("Enter a URL or search first.");});
+  $("#bookmarkCurrent").addEventListener("click",()=>{const v=$("#addressInput").value.trim();if(v)addBookmark(v,v);else showToast("Enter a website in the address bar first.");});
+  $("#addShortcutTop").addEventListener("click",addShortcut);$("#addShortcutFull").addEventListener("click",addShortcut);
+  $("#taskForm").addEventListener("submit",e=>{e.preventDefault();addTask($("#taskInput").value);$("#taskInput").value="";});
+  $("#focusTask").addEventListener("click",()=>$("#taskInput").focus());
+  $("#weatherForm").addEventListener("submit",e=>{e.preventDefault();getWeather($("#weatherCity").value);});
+  $("#refreshWeather").addEventListener("click",()=>getWeather(state.weatherCity||"Jaunpur"));
+  $("#newsRefresh").addEventListener("click",()=>{news.reverse();renderNews();showToast("Cards reshuffled");});
+  $("#addBookmark").addEventListener("click",()=>{const url=prompt("Website URL:");if(url)addBookmark(url,url);});
+  $("#clearHistory").addEventListener("click",()=>{if(confirm("Clear all NEXUS history on this device?")){state.history=[];saveState();renderHistory();showToast("History cleared");}});
+  $("#exportBookmarks").addEventListener("click",()=>exportFile("nexus-bookmarks.json",state.bookmarks));
+  $("#downloadHelp").addEventListener("click",()=>showToast("Open your device browser's Downloads menu."));
+  $("#themeSelect").addEventListener("change",e=>{state.theme=e.target.value;saveState();applySettings();});
+  $("#wallSelect").addEventListener("change",e=>{state.wall=e.target.value;saveState();applySettings();});
+  $("#glowRange").addEventListener("input",e=>{state.glow=Number(e.target.value);$("#glowLabel").textContent=state.glow+"%";applySettings();saveState();});
+  $("#motionToggle").addEventListener("change",e=>{state.motion=e.target.checked;saveState();applySettings();});
+  $("#defaultEngine").addEventListener("change",e=>{state.engine=e.target.value;saveState();applySettings();});
+  $("#exportData").addEventListener("click",()=>exportFile("nexus-backup.json",state));
+  $("#resetData").addEventListener("click",()=>{if(confirm("Reset all NEXUS settings, tasks, bookmarks, shortcuts and history on this device?")){localStorage.removeItem(STORAGE_KEY);state=structuredClone(defaults);applySettings();renderShortcuts();renderTasks();renderBookmarks();renderHistory();showToast("NEXUS data reset");}});
+  document.addEventListener("keydown",e=>{if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="l"){e.preventDefault();$("#addressInput").focus();$("#addressInput").select();}if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="t"){e.preventDefault();newTab();}if(e.key==="Escape"){$("#searchInput").blur();$("#addressInput").blur();}});
+  document.addEventListener("mousemove",e=>{if(!state.motion)return;const x=(e.clientX/window.innerWidth-.5)*10,y=(e.clientY/window.innerHeight-.5)*10;$(".halo").style.marginLeft=x+"px";$(".halo").style.marginTop=y+"px";});
+  function animateMetrics(){
+    const sets=[["cpuValue","cpuLine",10,75],["ramValue","ramLine",30,90],["netValue","netLine",1,100]];
+    sets.forEach(([valueId,lineId,min,max])=>{const val=Math.round(min+Math.random()*(max-min));$("#"+valueId).textContent=value+(valueId==="netValue"?" Mbps":"%");const points=Array.from({length:10},(_,i)=>`${i*20} ${5+Math.random()*20}`).join(" L ");$("#"+lineId).setAttribute("d","M"+points);});
+  }
+  initCity();applySettings();renderTabs();renderShortcuts();renderTasks();renderBookmarks();renderHistory();renderNews();updateClock();setInterval(updateClock,1000);setInterval(animateMetrics,2400);
+  $("#weatherCity").value=state.weatherCity||"Jaunpur";
+})();
+</script>
+</body>
+</html>
